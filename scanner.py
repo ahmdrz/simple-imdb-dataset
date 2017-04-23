@@ -26,6 +26,33 @@ base = "http://www.imdb.com"
 images = 0
         
 for start in xrange(1,4000,100):
+    url = base + '/search/name?gender=female&count=100&start='+str(start)        
+    r = requests.get(url)    
+    html = r.text
+    soup = bs4.BeautifulSoup(html, 'html.parser')
+    
+    for img in soup.select('.detailed .image'):
+        link = img.find('a').get('href')    
+        print "opening " + str(images) + (base + link)
+        r = requests.get(base + link)    
+        html = r.text
+        soup = bs4.BeautifulSoup(html,'html.parser')
+        selector = soup.find('time')
+        if selector == None:
+            continue
+        date = selector.get('datetime') 
+        
+        selector = soup.find('img',{"id":"name-poster"})    
+        if selector == None:
+            continue
+        image = selector.get('src')
+        
+        images = images + 1
+        
+        download(image,"./images/females/"+str(images)+"+"+date+".jpg")
+        print "downloaded" 
+        
+for start in xrange(1,4000,100):
     url = base + '/search/name?gender=male&count=100&start='+str(start)    
     r = requests.get(url)    
     html = r.text
@@ -50,31 +77,4 @@ for start in xrange(1,4000,100):
         images = images + 1
         
         download(image,"./images/males/"+str(images)+"+"+date+".jpg")
-        print "downloaded"    
-        
-for start in xrange(1,4000,100):
-    url = base + '/search/name?gender=female&count=100&start='+str(start)        
-    r = requests.get(url)    
-    html = r.content()
-    soup = bs4.BeautifulSoup(html, 'html.parser')
-    
-    for img in soup.select('.detailed .image'):
-        link = img.find('a').get('href')    
-        print "opening " + str(images) + (base + link)
-        r = requests.get(base + link)    
-        html = r.text
-        soup = bs4.BeautifulSoup(html,'html.parser')
-        selector = soup.find('time')
-        if selector == None:
-            continue
-        date = selector.get('datetime') 
-        
-        selector = soup.find('img',{"id":"name-poster"})    
-        if selector == None:
-            continue
-        image = selector.get('src')
-        
-        images = images + 1
-        
-        download(image,"./images/females/"+str(images)+"+"+date+".jpg")
-        print "downloaded"    
+        print "downloaded"               
